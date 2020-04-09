@@ -25,13 +25,13 @@ int main(){
 				break;
 			case A:
 				if (c == '1'){
-					state = C;
-					cout << "goes to C" << endl;
+					state = B;
+					cout << "goes to B" << endl;
 				}
 				else 
 					if (c == '0'){
-						state = B;
-						cout << "goes to B" << endl;
+						state = C;
+						cout << "goes to C" << endl;
 					}
 					else{ 
 						state = ERR;
@@ -40,13 +40,13 @@ int main(){
 				break;
 			case B:
 				if (c == '1'){
-					state = A;
-					cout << "goes to A" << endl;
+					state = B;
+					cout << "goes to B" << endl;
 				}
 				else 
 					if (c == '0'){
-						state = D;
-						cout << "goes to D" << endl;
+						state = E;
+						cout << "goes to E" << endl;
 					}
 					else{ 
 						state = ERR;
@@ -55,13 +55,13 @@ int main(){
 				break;
 			case C:
 				if (c == '1'){
-					state = C;
-					cout << "goes to C" << endl;
+					state = B;
+					cout << "goes to B" << endl;
 				}
 				else
 				       	if (c == '0'){
-						state = E;
-						cout << "goes to E" << endl;
+						state = D;
+						cout << "goes to D" << endl;
 					}
 					else{
 						state = ERR;
@@ -71,7 +71,7 @@ int main(){
 			case D:
 				if (c == '0'){
 					state = B;
-					cout << "goes to B" << endl;
+					cout << "goes to C" << endl;
 				}
 				else
 				       	if (c == '\n'){
@@ -85,8 +85,8 @@ int main(){
 				break;
 			case E:
 				if (c == '1'){
-					state = A;
-					cout << "goes to A" << endl;
+					state = B;
+					cout << "goes to B" << endl;
 				}
 				else 	
 					if (c == '0'){
