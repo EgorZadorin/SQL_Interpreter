@@ -1,10 +1,10 @@
-/******************************************************************
-E -> <bool e = > M {+ M <return false>} <return e;>
+/**************************************************************************************************************************************
+E -> M <bool e = stack.top; stack.pop> {+ M <e = false;>} <stack.push(e);>
 
-M -> <bool m = > F {* F <return false>} <return m;>
+M -> F <bool m = stack.top; stack.pop> {* F <m = false;>} <stack.push(m);>
 
-F -> ( <bool f = > E <if (f) error();> ) return true; | num | iden
-*******************************************************************/
+F -> ( E <bool f = stack.top; stack.pop; if (f) error();> ) <stack.push(true);> | num <stack.push(false);> | iden <stack.push(false);>
+****************************************************************************************************************************************/
 
 
 #include <iostream>
@@ -129,40 +129,47 @@ namespace loop_parser_actions {
         lexer::next();
     }
 
-    // returns its subexpression value
-    bool E();
-    // returns its subexpression value
-    bool M();
-    // returns its subexpression value
-    bool F();
+    std::stack<bool> computation_stack;
 
-    bool E()
+    void E();
+
+    void M();
+
+    void F();
+
+    void E()
     {
-        bool e = M();
+        M();
+        bool e = computation_stack.top();
+        computation_stack.pop();
         while (lexer::cur_lex_type == PLUS) {
             lexer::next();
             M();
             e = false;
         }
-        return e;
+        computation_stack.push(e);
     }
 
-    bool M()
+    void M()
     {
-        bool m = F();
+        F();
+        bool m = computation_stack.top();
+        computation_stack.pop();
         while (lexer::cur_lex_type == MULT) {
             lexer::next();
             F();
             m = false;
         }
-        return m;
+        computation_stack.push(m);
     }
 
-    bool F()
+    void F()
     {
         if (lexer::cur_lex_type == OPEN) {
             lexer::next();
-            bool f = E();
+            E();
+            bool f = computation_stack.top();
+            computation_stack.pop();
             if (f) 
                 throw std::logic_error("double bracket");
             if (lexer::cur_lex_type != CLOSE) {
@@ -172,13 +179,13 @@ namespace loop_parser_actions {
                         " got <<" + lexer::cur_lex_text + ">>");
             }
             lexer::next();
-            return true;
+            computation_stack.push(true);
         } else if (lexer::cur_lex_type == NUMBER) {
             lexer::next();
-            return false;
+            computation_stack.push(false);
         } else if (lexer::cur_lex_type == IDEN) {
             lexer::next();
-            return false;
+            computation_stack.push(false);
         } else {
             throw std::logic_error(
                         std::to_string(lexer::cur_lex_pos) + ": "
