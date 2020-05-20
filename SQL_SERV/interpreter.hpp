@@ -123,7 +123,7 @@ namespace Interpreter {
         static std::vector<lex_type_t> lex_exp;
         static std::vector<int> filter_list;
         static std::vector<std::string> const_list;
-        static int not_flag;
+  	static bool not_flag;
 
         // Get answer
         std::string get_answer();
@@ -149,8 +149,8 @@ namespace Interpreter {
         type_t where_expr_term();
         type_t where_expr_mult();
         type_t where_open(type_t);
-        void where_like(bool);
-        void where_in(bool);
+        void where_like(bool&);
+        void where_in(bool&);
     }
 }
 
