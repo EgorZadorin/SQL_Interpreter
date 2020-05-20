@@ -1068,10 +1068,10 @@ namespace TableInterface {
     }
 
     // choosing suitable to model-string records, returns array of integer
-    std::vector<int> filter_like (std::string &table_name, std::string &field_name, std::string &model, bool not_flag) {    
+    std::vector<int> filter_like (std::string &table_name, std::string &field_name, std::string &model, bool &not_flag) {    
         std::vector<int> ans;
         THandle td;
-        char * cur_str;//string??
+        char * cur_str;
         Errors err;
         int cur_pos = 0;
 
@@ -1080,7 +1080,8 @@ namespace TableInterface {
         if ((err = moveFirst(td)) != OK) { throw DataBaseException(err); }
         while (!afterLast(td)) {
             if ((err = getText(td, field_name.c_str(), &cur_str))) { throw DataBaseException(err); }             
-            bool like_flag = compare_like(std::string(cur_str), model);
+            std::string tmp = std::string(cur_str); 
+            bool like_flag = compare_like(tmp, model);
             if ((!like_flag || !not_flag) && (like_flag || not_flag)) ans.push_back(cur_pos); // Xor for flags (otherwise twice comparison)
             ++cur_pos;
             if ((err = moveNext(td))) { throw DataBaseException(err); }    
@@ -1089,7 +1090,7 @@ namespace TableInterface {
         return ans;
     }
 
-    std::vector<int> filter_in(std::string &table_name, std::vector<std::string> &poliz_texts, std::vector<lex_type_t> &poliz_types, std::vector<FieldCont> &const_list, bool not_flag) {     
+    std::vector<int> filter_in(std::string &table_name, std::vector<std::string> &poliz_texts, std::vector<lex_type_t> &poliz_types, std::vector<FieldCont> &const_list, bool &not_flag) {     
         std::vector<int> ans;
         THandle td;
         Errors err;
@@ -1197,7 +1198,7 @@ namespace TableInterface {
         return table_str;
     }
 
-    std::string  select(std::string &table_name, std::vector<std::string> &field_list, std::vector<int> &fields_filtered, bool all_flag){
+    std::string select(std::string &table_name, std::vector<std::string> &field_list, std::vector<int> &fields_filtered, bool &all_flag){
         Errors err;
         THandle td;
         std::string table_str;
@@ -1212,7 +1213,7 @@ namespace TableInterface {
 
         if ((err = openTable(table_name.c_str(), &td)) != OK) {throw DataBaseException (err);}
         if ((err = getFieldsNum(td, &table_size)) != OK) {throw DataBaseException (err);}
-        for (unsigned i = 0; i < table_size; i++) {
+        for (i = 0; i < table_size; i++) {
             if ((err = getFieldName(td, i, &field_name)) != OK) {throw DataBaseException(err);}
 
             field_name_string = field_name;
@@ -1223,9 +1224,11 @@ namespace TableInterface {
                 table_str = table_str + " " + field_name;
             }
         }
+        i = 0;
         table_str += '\n';
         if ((err = moveFirst(td)) != OK) {throw DataBaseException(err);}
-        while (!afterLast(td)) {
+        bool stop = afterLast(td);
+        while (!stop && j < fields_filtered.size()) {
             if (i == fields_filtered[j]) {
                 for (k = 0; k < table_size; k++) {          //goes through all fields, no exception!!!!!!!
                     if ((err = getFieldName(td, k, &field_name)) != OK) {throw DataBaseException(err);}
@@ -1259,6 +1262,7 @@ namespace TableInterface {
                 i++;
             }    
             if ((err = moveNext(td)) != OK) {throw DataBaseException(err);}
+            stop = afterLast(td);
         }
         return table_str;
     }
@@ -1315,7 +1319,7 @@ namespace TableInterface {
         if ((err = openTable(table_name.c_str(), &td)) != OK) {throw DataBaseException (err);}
         if ((err = getFieldsNum(td, &table_size)) != OK) {throw DataBaseException (err);} 
         if ((err = moveFirst(td)) != OK) {throw DataBaseException(err);}
-        while (!afterLast(td)) {
+        while (!afterLast(td) && j < fields_filtered.size()) {
             if (i == fields_filtered[j]) {
                 poliz_res = poliz_count(td, poliz_texts, poliz_types);
                 if ((err = startEdit(td)) != OK) {throw DataBaseException(err);}
@@ -1338,12 +1342,11 @@ namespace TableInterface {
     void delete_fields(std::string &table_name, std::vector<int> &fields_filtered){
         Errors err;
         THandle td;
-        int i = 0;
-        int j = 0;
+        unsigned i = 0, j = 0;
 
         if ((err = openTable(table_name.c_str(), &td)) != OK) {throw DataBaseException(err);}
         if ((err = moveFirst(td)) != OK) {throw DataBaseException(err);}
-        while (!afterLast(td)) {
+        while (!afterLast(td) && j < fields_filtered.size()) {
             if (i == fields_filtered[j]) {
                 if ((err = deleteRec(td)) != OK) {throw DataBaseException(err);}
                 i++; 
