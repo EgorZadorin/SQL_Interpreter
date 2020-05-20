@@ -395,7 +395,7 @@ namespace Interpreter {
         field_name_list.clear();
         field_name.clear();
         filter_list.clear();
-        all_flag = 0;
+        all_flag = false;
 
         answer = "\n";
 
@@ -735,7 +735,7 @@ namespace Interpreter {
     }
 /////////////WHERE CLAUSE//////////////
     void parser::where_p() {
-        int not_flag = 0;
+        not_flag = false;
         parser::type_t type;
         if (lexer::cur_lex_type == WHERE) {
             lexer::next();
@@ -773,10 +773,12 @@ namespace Interpreter {
                     lexer::next();
                     if (lexer::cur_lex_type == LIKE) {
                         lexer::next();
-                        where_like(1);
+                        not_flag = true;
+                        where_like(not_flag);
                     } else if (lexer::cur_lex_type == IN) {
                         lexer::next();
-                        where_in(1);
+                        not_flag = true;
+                        where_in(not_flag);
                     } else {
                         lex_exp.push_back(LIKE);
                         lex_exp.push_back(IN);
@@ -784,10 +786,10 @@ namespace Interpreter {
                     }
                 } else if (lexer::cur_lex_type == LIKE) {
                     lexer::next();
-                    where_like(0);
+                    where_like(not_flag);
                 } else if (lexer::cur_lex_type == IN) {
                     lexer::next();
-                    where_in(0);
+                    where_in(not_flag);
                 } else {
                     lex_exp.push_back(LIKE);
                     lex_exp.push_back(IN);
@@ -799,14 +801,15 @@ namespace Interpreter {
                     lexer::next();
                     if (lexer::cur_lex_type == IN) {
                         lexer::next();
-                        where_in(1);
+                        not_flag = true;
+                        where_in(not_flag);
                     } else {
                         lex_exp.push_back(IN);
                         throw ParserException(lex_exp);
                     }
                 } else if (lexer::cur_lex_type == IN) {
                     lexer::next();
-                    where_in(0);
+                    where_in(not_flag);
                 } else {
                     lex_exp.push_back(IN);
                     throw ParserException(lex_exp);               
@@ -817,14 +820,15 @@ namespace Interpreter {
                     lexer::next();
                     if (lexer::cur_lex_type == IN) {
                         lexer::next();
-                        where_in(1);
+                        not_flag = true;
+                        where_in(not_flag);
                     } else {
                         lex_exp.push_back(IN);
                         throw ParserException(lex_exp);
                     }
                 } else if (lexer::cur_lex_type == IN) {
                     lexer::next();
-                    where_in(0);
+                    where_in(not_flag);
                 } else {
                     lex_exp.push_back(IN);
                     throw ParserException(lex_exp);
@@ -1138,7 +1142,7 @@ namespace Interpreter {
         throw ParserException(lex_exp);
     }
 
-    void parser::where_in(bool not_flag) {
+    void parser::where_in(bool &n_flag) {
         std::vector<TableInterface::FieldCont> const_list;
         if (lexer::cur_lex_type == OPEN) {
             lexer::next();
@@ -1222,7 +1226,7 @@ namespace Interpreter {
         }
     }
 
-    void parser::where_like(bool not_flag) {
+    void parser::where_like(bool &n_flag) {
         if (lexer::cur_lex_type == QUOTE) {
             std::string model = lexer::cur_lex_text;
             field_name = poliz_texts[0];
