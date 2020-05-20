@@ -37,9 +37,9 @@ namespace TableInterface {
     std::vector<int> filter_all(std::string &table_name);
 
     std::vector<int> filter_in(std::string &table_name, std::vector<std::string> &poliz_texts, std::vector<lex_type_t> &poliz_types,
-        std::vector<FieldCont> &const_list, bool not_flag);
+        std::vector<FieldCont> &const_list, bool &not_flag);
 
-    std::vector<int> filter_like (std::string &table_name, std::string &field_name, std::string &model, bool not_flag);
+    std::vector<int> filter_like (std::string &table_name, std::string &field_name, std::string &model, bool &not_flag);
 
     std::vector<int> filter_logic(std::string &table_name,  std::vector<std::string> &poliz_texts, std::vector<lex_type_t> &poliz_types);
 
@@ -49,7 +49,7 @@ namespace TableInterface {
 
     bool in_list(std::string &str, std::vector<std::string> &list);
 
-    std::string select(std::string &table_name, std::vector<std::string> &field_list, std::vector<int> &fields_filtered, bool all_flag);
+    std::string select(std::string &table_name, std::vector<std::string> &field_list, std::vector<int> &fields_filtered, bool &all_flag);
 
     void insert(std::string &table_name, const std::vector<FieldCont> &field_vect);
      
